@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="list_no_data">Нет данных для отображения</string>
+    <string name="file_error">Не удалось прочитать файл</string>
+    <string name="json_error">Не удалось разобрать файл</string>
+    <string name="app_name">Банк аргументов</string>
+    <string name="about">О программе</string>
+    <string name="refresh">Обновить</string>
+    <string name="image">Изображение</string>
+    <string name="about_string">Банк аргументов для задания C1 ЕГЭ по русскому языку. На данный момент в базе содержится 92 проблемы и 269 литературных аргументов и цитат. О любых опечатках/ошибках/багах сообщайте мне на почту.</string>
+    <string name="copyright">Copyright © 2012  Валерий Харитонов (kharvd@gmail.com)</string>
+    <string name="json_asset_name">arguments.json</string>
+    <string name="close">Закрыть</string>
+
+</resources>
