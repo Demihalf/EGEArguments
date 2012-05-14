@@ -12,5 +12,6 @@
     <string name="copyright">Copyright © 2012  Валерий Харитонов (kharvd@gmail.com)</string>
     <string name="json_asset_name">arguments.json</string>
     <string name="close">Закрыть</string>
+    <string name="versionNumber">0.9.2</string>
 
 </resources>

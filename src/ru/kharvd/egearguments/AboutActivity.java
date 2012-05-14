@@ -18,7 +18,7 @@
  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 package ru.kharvd.egearguments;
 
@@ -38,7 +38,8 @@ public class AboutActivity extends Activity {
 
         StringBuilder str = new StringBuilder();
 
-        str.append("<h4>" + getString(R.string.app_name) + "</h4>");
+        str.append("<h4>" + getString(R.string.app_name) + " v"
+                + getString(R.string.versionNumber) + "</h4>");
         str.append("<p>" + getText(R.string.about_string) + "</p>");
         str.append("<p>" + getString(R.string.copyright) + "</p>");
 
