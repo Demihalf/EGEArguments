@@ -168,10 +168,6 @@ public class EGEArguments extends ListActivity {
         File dir = Environment.getExternalStorageDirectory();
         File file = new File(dir, fileName);
 
-        if (file.length() > Integer.MAX_VALUE) {
-
-        }
-
         return getJSON(new FileInputStream(file));
     }
 
