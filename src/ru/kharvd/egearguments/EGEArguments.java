@@ -18,12 +18,16 @@
  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 package ru.kharvd.egearguments;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +36,7 @@ import org.json.JSONObject;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,20 +52,24 @@ public class EGEArguments extends ListActivity {
     private JSONArray mProblemGroups;
     private String mJSONAssetName;
 
+    private boolean mExternalStorageAvailable;
+
     public final static String EXTRA_JSON = "ru.kharvd.egearguments.JSON";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
+
         TextView title = (TextView) findViewById(R.id.title);
-        
+
         if (title != null) {
             title.setText(R.string.app_name);
             title.setSelected(true);
         }
-        
+
+        updateExternalStorageState();
+
         mJSONAssetName = getResources().getString(R.string.json_asset_name);
 
         populateList();
@@ -83,30 +92,40 @@ public class EGEArguments extends ListActivity {
             }
         });
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.about:
-                Intent intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        case R.id.about:
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
         }
     }
-    
+
+    /**
+     * Loads JSON to mProblemGroups and populates the list with problem groups.
+     */
     private void populateList() {
         try {
-            mProblemGroups = new JSONArray(getJSON());
+            mProblemGroups = new JSONArray(getJSONFromAsset());
+
+            updateExternalStorageState();
+
+            if (mExternalStorageAvailable) {
+                loadUserArguments();
+            }
+
             String[] strings = getProblemGroupList(mProblemGroups);
 
             setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item,
@@ -118,18 +137,74 @@ public class EGEArguments extends ListActivity {
         }
     }
 
-    private String getJSON() throws IOException {
+    /**
+     * Loads user problems from file and appends them to mProblemGroups
+     */
+    private void loadUserArguments() {
+        try {
+            String json = loadUserJSON("/Android/data/ru.kharvd.egearguments/files/user.json");
+            JSONArray userProblems = new JSONArray(json);
+
+            for (int i = 0; i < userProblems.length(); i++) {
+                mProblemGroups.put(userProblems.get(i));
+            }
+        } catch (IOException e) {
+            ioErrorToast(e.getLocalizedMessage());
+        } catch (JSONException e) {
+            parseErrorToast(e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Loads user JSON raw string
+     * 
+     * @return Raw JSON string
+     * @param fileName
+     *            Name of the file, relative to
+     *            Environment.getExternalStorageDirectory();
+     */
+    private String loadUserJSON(String fileName) throws IOException {
+        updateExternalStorageState();
+        File dir = Environment.getExternalStorageDirectory();
+        File file = new File(dir, fileName);
+
+        if (file.length() > Integer.MAX_VALUE) {
+
+        }
+
+        return getJSON(new FileInputStream(file));
+    }
+
+    /**
+     * Loads raw JSON string with default arguments from assets.
+     * 
+     * @return Raw JSON string
+     * @throws IOException
+     */
+    private String getJSONFromAsset() throws IOException {
         InputStream is = getAssets().open(mJSONAssetName);
+        return getJSON(is);
+    }
 
-        int size = is.available();
+    /**
+     * Loads text from {@code is} and returns a raw JSON string
+     * 
+     * @param is
+     *            InputStream to read data from
+     * @return Raw JSON string
+     * @throws IOException
+     */
+    private String getJSON(InputStream is) throws IOException {         
+        InputStreamReader inputreader = new InputStreamReader(is);
+        BufferedReader buffreader = new BufferedReader(inputreader);
+        String line;
+        StringBuilder text = new StringBuilder();
 
-        // Read the entire asset into a local byte buffer.
-        byte[] buffer = new byte[size];
-        is.read(buffer);
-        is.close();
+        while ((line = buffreader.readLine()) != null) {
+            text.append(line);
+        }
 
-        // Convert the buffer into a string.
-        return new String(buffer);
+        return text.toString();
     }
 
     private String[] getProblemGroupList(JSONArray problemGroups)
@@ -144,13 +219,24 @@ public class EGEArguments extends ListActivity {
         return strings;
     }
 
+    private void updateExternalStorageState() {
+        String state = Environment.getExternalStorageState();
+
+        if (Environment.MEDIA_MOUNTED.equals(state)
+                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            mExternalStorageAvailable = true;
+        } else {
+            mExternalStorageAvailable = false;
+        }
+    }
+
     private void ioErrorToast(String msg) {
         Toast.makeText(this, R.string.file_error + ": " + msg,
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_LONG).show();
     }
 
     private void parseErrorToast(String msg) {
         Toast.makeText(this, R.string.json_error + ": " + msg,
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_LONG).show();
     }
 }
