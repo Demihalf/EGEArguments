@@ -25,6 +25,7 @@ package ru.kharvd.egearguments;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,8 +36,11 @@ import org.json.JSONObject;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -104,9 +108,16 @@ public class EGEArguments extends ListActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
+        case R.id.refresh:
+            populateList();
+            return true;
+        case R.id.settings:
+            Intent prefsIntent = new Intent(this, PreferencesActivity.class);
+            startActivity(prefsIntent);
+            return true;
         case R.id.about:
-            Intent intent = new Intent(this, AboutActivity.class);
-            startActivity(intent);
+            Intent aboutIntent = new Intent(this, AboutActivity.class);
+            startActivity(aboutIntent);
             return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -122,7 +133,11 @@ public class EGEArguments extends ListActivity {
 
             updateExternalStorageState();
 
-            if (mExternalStorageAvailable) {
+            SharedPreferences prefs = PreferenceManager
+                    .getDefaultSharedPreferences(this);
+
+            if (prefs.getBoolean("user_arguments_preference", false)
+                    && mExternalStorageAvailable) {
                 loadUserArguments();
             }
 
@@ -142,7 +157,11 @@ public class EGEArguments extends ListActivity {
      */
     private void loadUserArguments() {
         try {
-            String json = loadUserJSON("/Android/data/ru.kharvd.egearguments/files/user.json");
+            SharedPreferences prefs = PreferenceManager
+                    .getDefaultSharedPreferences(this);
+
+            String json = loadUserJSON(prefs.getString("user_arguments_path",
+                    ""));
             JSONArray userProblems = new JSONArray(json);
 
             for (int i = 0; i < userProblems.length(); i++) {
@@ -168,6 +187,10 @@ public class EGEArguments extends ListActivity {
         File dir = Environment.getExternalStorageDirectory();
         File file = new File(dir, fileName);
 
+        if (!file.exists()) {
+            throw new FileNotFoundException(file.getAbsolutePath());
+        }
+
         return getJSON(new FileInputStream(file));
     }
 
@@ -190,7 +213,7 @@ public class EGEArguments extends ListActivity {
      * @return Raw JSON string
      * @throws IOException
      */
-    private String getJSON(InputStream is) throws IOException {         
+    private String getJSON(InputStream is) throws IOException {
         InputStreamReader inputreader = new InputStreamReader(is);
         BufferedReader buffreader = new BufferedReader(inputreader);
         String line;
@@ -227,12 +250,12 @@ public class EGEArguments extends ListActivity {
     }
 
     private void ioErrorToast(String msg) {
-        Toast.makeText(this, R.string.file_error + ": " + msg,
+        Toast.makeText(this, getString(R.string.file_error) + ": " + msg,
                 Toast.LENGTH_LONG).show();
     }
 
     private void parseErrorToast(String msg) {
-        Toast.makeText(this, R.string.json_error + ": " + msg,
+        Toast.makeText(this, getString(R.string.json_error) + ": " + msg,
                 Toast.LENGTH_LONG).show();
     }
 }
