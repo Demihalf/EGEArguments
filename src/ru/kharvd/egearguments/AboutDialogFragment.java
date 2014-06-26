@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2012        Valery Kharitonov <kharvd@gmail.com>
+ Copyright (c) 2014        Valery Kharitonov <kharvd@gmail.com>
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"),
@@ -22,35 +22,31 @@
 
 package ru.kharvd.egearguments;
 
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.text.Html;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
 
-public class AboutActivity extends Activity {
+public class AboutDialogFragment extends DialogFragment {
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.about);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        StringBuilder message = new StringBuilder();
 
-        StringBuilder str = new StringBuilder();
+        message.append("<p>" + getText(R.string.about_string) + "</p>");
+        message.append("<p>" + getString(R.string.copyright) + "</p>");
 
-        str.append("<h4>" + getString(R.string.app_name) + " v"
-                + getString(R.string.versionNumber) + "</h4>");
-        str.append("<p>" + getText(R.string.about_string) + "</p>");
-        str.append("<p>" + getString(R.string.copyright) + "</p>");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(getString(R.string.app_name))
+                .setMessage(Html.fromHtml(message.toString()))
+                .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
 
-        TextView tw = (TextView) findViewById(R.id.aboutText);
-        tw.setText(Html.fromHtml(str.toString()));
-
-        Button btnClose = (Button) findViewById(R.id.btnClose);
-        btnClose.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                ((AboutActivity) v.getContext()).finish();
-            }
-        });
+        return builder.create();
     }
+
 }

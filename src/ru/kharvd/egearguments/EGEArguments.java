@@ -22,16 +22,10 @@
 
 package ru.kharvd.egearguments;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -40,10 +34,16 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-public class EGEArguments extends ListActivity {
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+public class EGEArguments extends ActionBarActivity {
     private JSONArray mProblemGroups;
     private String mJSONAssetName;
 
@@ -54,20 +54,14 @@ public class EGEArguments extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        TextView title = (TextView) findViewById(R.id.title);
-        
-        if (title != null) {
-            title.setText(R.string.app_name);
-            title.setSelected(true);
-        }
-        
         mJSONAssetName = getResources().getString(R.string.json_asset_name);
 
-        populateList();
+        ListView lv = (ListView) findViewById(R.id.argument_list);
+        lv.setEmptyView(findViewById(R.id.empty_list));
 
-        ListView lv = getListView();
+        populateList(lv);
+
         lv.setTextFilterEnabled(true);
-
         lv.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
@@ -78,7 +72,7 @@ public class EGEArguments extends ListActivity {
                             mProblemGroups.getJSONObject(position).toString());
                     startActivity(intent);
                 } catch (JSONException e) {
-                    parseErrorToast(e.getLocalizedMessage());
+                    parseErrorToast();
                 }
             }
         });
@@ -88,7 +82,7 @@ public class EGEArguments extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
     
     @Override
@@ -96,25 +90,25 @@ public class EGEArguments extends ListActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.about:
-                Intent intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
+                DialogFragment aboutFragment = new AboutDialogFragment();
+                aboutFragment.show(getSupportFragmentManager(), null);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
     
-    private void populateList() {
+    private void populateList(ListView lv) {
         try {
             mProblemGroups = new JSONArray(getJSON());
             String[] strings = getProblemGroupList(mProblemGroups);
 
-            setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item,
+            lv.setAdapter(new ArrayAdapter<String>(this, R.layout.list_item,
                     strings));
         } catch (IOException e) {
-            ioErrorToast(e.getLocalizedMessage());
+            ioErrorToast();
         } catch (JSONException e) {
-            parseErrorToast(e.getLocalizedMessage());
+            parseErrorToast();
         }
     }
 
@@ -144,13 +138,13 @@ public class EGEArguments extends ListActivity {
         return strings;
     }
 
-    private void ioErrorToast(String msg) {
-        Toast.makeText(this, R.string.file_error + ": " + msg,
-                Toast.LENGTH_SHORT).show();
+    private void ioErrorToast() {
+        Toast.makeText(this, R.string.file_error, Toast.LENGTH_SHORT)
+                .show();
     }
 
-    private void parseErrorToast(String msg) {
-        Toast.makeText(this, R.string.json_error + ": " + msg,
-                Toast.LENGTH_SHORT).show();
+    private void parseErrorToast() {
+        Toast.makeText(this, R.string.json_error, Toast.LENGTH_SHORT)
+                .show();
     }
 }

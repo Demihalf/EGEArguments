@@ -22,13 +22,10 @@
 
 package ru.kharvd.egearguments;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -37,7 +34,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ProblemsActivity extends ListActivity {
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class ProblemsActivity extends ActionBarActivity {
     JSONObject mProblemGroup;
     JSONArray mProblems;
 
@@ -46,8 +47,14 @@ public class ProblemsActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         Intent intent = getIntent();
         String json = intent.getStringExtra(EGEArguments.EXTRA_JSON);
+
+        ListView lv = (ListView) findViewById(R.id.argument_list);
+        lv.setEmptyView(findViewById(R.id.empty_list));
 
         try {
             mProblemGroup = new JSONObject(json);
@@ -66,7 +73,7 @@ public class ProblemsActivity extends ListActivity {
             mProblems = getProblems(mProblemGroup);
             String[] strings = getProblemsList(mProblems);
 
-            setListAdapter(new ArrayAdapter<String>(this,
+            lv.setAdapter(new ArrayAdapter<String>(this,
                     R.layout.list_item, strings));
         } catch (JSONException e) {
             Toast.makeText(this, R.string.json_error, Toast.LENGTH_SHORT)
@@ -74,7 +81,6 @@ public class ProblemsActivity extends ListActivity {
             return;
         }
 
-        ListView lv = getListView();
         lv.setTextFilterEnabled(true);
 
         lv.setOnItemClickListener(new OnItemClickListener() {

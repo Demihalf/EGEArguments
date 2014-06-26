@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="LightTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:listViewStyle">@style/MyListView</item>
-    </style>
-    
-    <style name="LightTheme.Dialog" parent="@android:style/Theme.Dialog"></style>
-</resources>
