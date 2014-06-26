@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/about"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical" >
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/aboutText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:autoLink="email"
-        android:drawableTop="@drawable/ic_launcher"
-        android:padding="20dip" />
-
-    <Button
-        android:id="@+id/btnClose"
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/close" />
+        android:id="@+id/imageView"
+        android:src="@drawable/ic_launcher"
+        android:layout_marginTop="20dip"
+        android:layout_weight="0" />
 
+    <TextView
+            android:id="@+id/aboutText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="email"
+            android:padding="20dip"
+            android:clickable="true"
+            android:textSize="18sp"
+            android:text="Test text"
+            android:layout_weight="1">
+    </TextView>
 </LinearLayout>

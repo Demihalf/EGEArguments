@@ -28,18 +28,21 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.Html;
+import android.view.LayoutInflater;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class AboutDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        StringBuilder message = new StringBuilder();
-
-        message.append("<p>" + getText(R.string.about_string) + "</p>");
-        message.append("<p>" + getString(R.string.copyright) + "</p>");
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.about, null);
+        TextView tv = (TextView) layout.findViewById(R.id.aboutText);
+        tv.setText(Html.fromHtml(getString(R.string.about_string)));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getString(R.string.app_name))
-                .setMessage(Html.fromHtml(message.toString()))
+                .setView(layout)
                 .setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();
