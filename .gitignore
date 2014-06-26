@@ -2,3 +2,9 @@
 gen
 bin
 .settings
+.idea
+*.iml
+local.properties
+out
+.gradle
+build
